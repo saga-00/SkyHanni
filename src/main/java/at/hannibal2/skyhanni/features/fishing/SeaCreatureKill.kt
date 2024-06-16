@@ -6,11 +6,7 @@ import at.hannibal2.skyhanni.features.dungeon.DungeonAPI
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.InventoryUtils
-import at.hannibal2.skyhanni.utils.ItemUtils.itemName
 import at.hannibal2.skyhanni.utils.LorenzUtils
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.time.delay
 import net.minecraft.client.Minecraft
 import net.minecraft.client.settings.KeyBinding
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
@@ -32,7 +28,7 @@ object SeaCreatureKill {
         seaCreatures.add(creature.name)
 
         initialPitch = LorenzUtils.getPlayer()?.cameraPitch ?: return
-        smoothRotate(90f)
+        smoothRotate(-90f)
     }
 
     @SubscribeEvent
@@ -41,8 +37,6 @@ object SeaCreatureKill {
 
         val creature = SeaCreatureManager.allFishingMobs[event.mob.name] ?: return
         seaCreatures.remove(creature.name)
-
-        ChatUtils.chat("[DEBUG] MobDeSpawn")
 
         if (seaCreatures.isEmpty()) smoothRotate(initialPitch)
     }
@@ -61,8 +55,6 @@ object SeaCreatureKill {
 
                 time += 1
         }
-
-        ChatUtils.chat("[DEBUG] smoothRotate")
     }
 
     @SubscribeEvent
@@ -72,9 +64,7 @@ object SeaCreatureKill {
 
         val player = LorenzUtils.getPlayer() ?: return
         val item = InventoryUtils.getItemsInHotbar().indexOfFirst { it.displayName.contains("Hyperion") }
-
         if (item == -1) return
-        ChatUtils.chat("[DEBUG] Tick 4")
 
         player.inventory.currentItem = item
         KeyBinding.onTick(Minecraft.getMinecraft().gameSettings.keyBindUseItem.keyCode)
