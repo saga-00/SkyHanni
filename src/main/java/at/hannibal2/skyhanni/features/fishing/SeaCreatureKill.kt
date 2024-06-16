@@ -8,6 +8,9 @@ import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.InventoryUtils
 import at.hannibal2.skyhanni.utils.ItemUtils.itemName
 import at.hannibal2.skyhanni.utils.LorenzUtils
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.time.delay
 import net.minecraft.client.Minecraft
 import net.minecraft.client.settings.KeyBinding
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
@@ -21,15 +24,10 @@ object SeaCreatureKill {
 
     @SubscribeEvent
     fun onSeaCreatureFish(event: SeaCreatureFishEvent) {
-        ChatUtils.chat("[DEBUG] SeaCreatureFish 0")
         if (!isEnabled()) return
-
-        ChatUtils.chat("[DEBUG] SeaCreatureFish 1")
 
         val creature = event.seaCreature
         if (creature.rarity.id > 4) return
-
-        ChatUtils.chat("[DEBUG] SeaCreatureFish 2")
 
         seaCreatures.add(creature.name)
 
@@ -39,11 +37,14 @@ object SeaCreatureKill {
 
     @SubscribeEvent
     fun onMobDeSpawn(event: MobEvent.DeSpawn.SkyblockMob) {
-        seaCreatures.remove(event.mob.name)
+        if (!isEnabled()) return
+
+        val creature = SeaCreatureManager.allFishingMobs[event.mob.name] ?: return
+        seaCreatures.remove(creature.name)
 
         ChatUtils.chat("[DEBUG] MobDeSpawn")
 
-        smoothRotate(initialPitch)
+        if (seaCreatures.isEmpty()) smoothRotate(initialPitch)
     }
 
     private fun smoothRotate(pitch: Float) {
@@ -54,11 +55,11 @@ object SeaCreatureKill {
 
         var time = 0
 
-        while (time < 5) {
-            val pitchToSet = initialPitch + diffPitch * (0.50 + time * 0.10)
-            player.cameraPitch = pitchToSet.toFloat()
+        repeat(5) {
+                val pitchToSet = initialPitch + diffPitch * (0.50 + time * 0.10)
+                player.rotationPitch = pitchToSet.toFloat()
 
-            time += 1
+                time += 1
         }
 
         ChatUtils.chat("[DEBUG] smoothRotate")
@@ -67,13 +68,10 @@ object SeaCreatureKill {
     @SubscribeEvent
     fun onTick(event: TickEvent.ClientTickEvent) {
         if (!isEnabled() || seaCreatures.isEmpty()) return
-        ChatUtils.chat("[DEBUG] Tick 1")
         if (event.phase != TickEvent.Phase.END) return
-        ChatUtils.chat("[DEBUG] Tick 2")
 
         val player = LorenzUtils.getPlayer() ?: return
-        ChatUtils.chat("[DEBUG] Tick 3")
-        val item = InventoryUtils.getItemsInHotbar().indexOfFirst { it.itemName.contains("Hyperion") }
+        val item = InventoryUtils.getItemsInHotbar().indexOfFirst { it.displayName.contains("Hyperion") }
 
         if (item == -1) return
         ChatUtils.chat("[DEBUG] Tick 4")
