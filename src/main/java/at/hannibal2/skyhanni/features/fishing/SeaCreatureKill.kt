@@ -62,10 +62,11 @@ object SeaCreatureKill {
         if (event.phase !== TickEvent.Phase.END) return
 
         val player = LorenzUtils.getPlayer() ?: return
+        val item = InventoryUtils.getItemsInHotbar().indexOfFirst { it.itemName.contains("Hyperion") }
 
-        val item = InventoryUtils.getItemsInHotbar().indexOfFirst { it.itemName.contains("Hyperion") } ?: return
+        if (item == -1) return
+
         player.inventory.currentItem = item
-
         KeyBinding.onTick(Minecraft.getMinecraft().gameSettings.keyBindUseItem.keyCode)
     }
 
