@@ -48,8 +48,8 @@ object SeaCreatureKill {
 
         var time = 0
 
-        repeat(5) {
-                val pitchToSet = initialPitch + diffPitch * (0.50 + time * 0.10)
+        repeat(25) {
+                val pitchToSet = initialPitch + diffPitch * (0.50 + time * 0.02)
                 player.rotationPitch = pitchToSet.toFloat()
 
                 time += 1
